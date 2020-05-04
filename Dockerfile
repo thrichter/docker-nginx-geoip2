@@ -15,18 +15,14 @@ RUN apt-get update &&\
                        libtool \
                        libpcre3 \
                        libpcre3-dev \
-                       libssl-dev
+                       libssl-dev \
+		       zlib1g \
+		       zlib1g-dev
 
-# Download MaxMind GeoLite2 databases
-RUN mkdir -p /usr/share/GeoIP/ &&\
-    wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz &&\
-    gunzip GeoLite2-City.mmdb.gz &&\
-    echo "0ca85433d0568f9cee58830508a8642c  GeoLite2-City.mmdb" | md5sum -c - &&\
-    mv GeoLite2-City.mmdb /usr/share/GeoIP/ &&\
-    wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz &&\
-    gunzip GeoLite2-Country.mmdb.gz &&\
-    echo "094695d4bb489c974caf3b9857aaba3c  GeoLite2-Country.mmdb" | md5sum -c - &&\
-    mv GeoLite2-Country.mmdb /usr/share/GeoIP/
+# Copy previously downloaded MaxMind GeoLite2 databases
+RUN mkdir -p /usr/share/GeoIP
+
+COPY ./geoip/*.* /usr/share/GeoIP/
 
 # Install C library for reading MaxMind DB files
 # Resource: https://github.com/maxmind/libmaxminddb
@@ -47,7 +43,7 @@ RUN git clone --recursive https://github.com/maxmind/libmaxminddb.git &&\
 #     apt-get install -y libmaxminddb0 libmaxminddb-dev mmdb-bin
 
 # Download Nginx and the Nginx geoip2 module
-ENV nginx_version 1.9.4
+ENV nginx_version 1.18.0
 RUN curl http://nginx.org/download/nginx-$nginx_version.tar.gz | tar xz &&\
     git clone https://github.com/leev/ngx_http_geoip2_module.git
 
@@ -88,7 +84,6 @@ RUN ./configure \
     --with-mail \
     --with-mail_ssl_module \
     --with-file-aio \
-    --with-http_spdy_module \
     --with-cc-opt='-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2' \
     --with-ld-opt='-Wl,-z,relro -Wl,--as-needed' \
     --with-ipv6 \
