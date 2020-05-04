@@ -1,9 +1,9 @@
-FROM nginx:1.9.3
+FROM nginx:1.18.0
 
-MAINTAINER Michał Czeraszkiewicz <contact@czerasz.com>
+MAINTAINER Thorsten Richter <thorsten@richtopia.de>
 
 # Set the reset cache variable
-ENV REFRESHED_AT 2016-05-10
+ENV REFRESHED_AT 2020-05-04
 
 # Update system and install required software
 RUN apt-get update &&\
